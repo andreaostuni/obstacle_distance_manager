@@ -95,5 +95,6 @@ private:
   rclcpp::Publisher<obstacle_distance_msgs::msg::ObstacleDistance>::SharedPtr
       obs_pub_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr og_pub_;
+  static char * cost_translation_table_;
 };
 } // namespace obsdist

@@ -285,9 +285,25 @@ ObstacleDistance::compute_obstacle_distance(
   vis.info = og.info;
 
   // allocate map structs so that x/y in the world correspond to x/y in the
-  // image
-  // (=> cv::Mat is rotated by 90 deg, because it's row-major!)
-  cv::Mat binaryMap = cv::Mat(og.info.width, og.info.height, CV_8UC1);
+  // image. Use rows=height, cols=width. Sanity-check sizes to avoid huge allocs.
+  unsigned int width = og.info.width;
+  unsigned int height = og.info.height;
+  if (width == 0 || height == 0) {
+    RCLCPP_ERROR(this->get_logger(), "OccupancyGrid has zero width or height: %u x %u", width, height);
+    return od;
+  }
+  const unsigned int MAX_DIM = 20000; // safety cap
+  if (width > MAX_DIM || height > MAX_DIM) {
+    RCLCPP_ERROR(this->get_logger(), "OccupancyGrid too large: %u x %u", width, height);
+    return od;
+  }
+  if (og.data.size() < static_cast<size_t>(width) * static_cast<size_t>(height)) {
+    RCLCPP_ERROR(this->get_logger(), "OccupancyGrid data size %zu smaller than width*height %zu", og.data.size(), (size_t)width * (size_t)height);
+    return od;
+  }
+
+  // rows = height, cols = width
+  cv::Mat binaryMap = cv::Mat(static_cast<int>(height), static_cast<int>(width), CV_8UC1);
   distMap_.release();
   distMap_ = cv::Mat(binaryMap.size(), CV_32FC1);
   cv::Mat visualizationMap = cv::Mat(binaryMap.size(), CV_8UC1);

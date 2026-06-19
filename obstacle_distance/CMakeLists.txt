@@ -38,6 +38,11 @@ install(TARGETS
 install(DIRECTORY launch/
    DESTINATION share/${PROJECT_NAME}/launch
 )
+#install  a python script
+install(PROGRAMS
+  scripts/obstacle_distance_visualizer
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
